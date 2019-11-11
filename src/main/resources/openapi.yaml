@@ -1,0 +1,194 @@
+openapi: 3.0.0
+info:
+  title: Rezervi
+  description: ''
+  version: 0.0.0
+servers: []
+tags:
+  - name: theater
+paths:
+  /theaters:
+    get:
+      tags:
+        - theater
+      operationId: getTheaters
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TheaterList'
+      security:
+        - local: []
+    post:
+      tags:
+        - theater
+      operationId: createTheater
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultTheater'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TheaterCreation'
+        required: true
+      security:
+        - local: []
+  /theaters/{id}:
+    get:
+      tags:
+        - theater
+      operationId: getTheater
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultTheater'
+      security:
+        - local: []
+    put:
+      tags:
+        - theater
+      operationId: updateTheater
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultTheater'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultTheater'
+        required: true
+      security:
+        - local: []
+    delete:
+      tags:
+        - theater
+      operationId: removeTheater
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultTheater'
+      security:
+        - local: []
+components:
+  schemas:
+    DefaultTheater:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        plan:
+          $ref: '#/components/schemas/DefaultPlan'
+      additionalProperties: false
+      required:
+        - address
+        - id
+        - name
+        - plan
+      title: Theater - DefaultTheater
+      description: Automatically generated (please edit me)
+    DefaultPlan:
+      title: Plan - DefaultPlan
+      type: object
+      properties:
+        seats:
+          type: array
+          items:
+            $ref: '#/components/schemas/DefaultSeat'
+      additionalProperties: false
+      description: Automatically generated (please edit me)
+      required:
+        - seats
+    DefaultSeat:
+      title: Seat - DefaultSeat
+      type: object
+      properties:
+        code:
+          type: string
+        x:
+          type: integer
+          minimum: 0
+        'y':
+          type: integer
+          minimum: 0
+        width:
+          type: integer
+          minimum: 0
+        height:
+          type: integer
+          minimum: 0
+        type:
+          type: string
+      additionalProperties: false
+      description: Automatically generated (please edit me)
+      required:
+        - code
+        - height
+        - type
+        - width
+        - x
+        - 'y'
+    TheaterCreation:
+      title: Theater - TheaterCreation
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        plan:
+          $ref: '#/components/schemas/DefaultPlan'
+      additionalProperties: false
+      required:
+        - address
+        - name
+        - plan
+    TheaterList:
+      type: array
+      items:
+        $ref: '#/components/schemas/DefaultTheater'
+      title: Theater - DefaultTheater
+      description: Automatically generated (please edit me)
+  securitySchemes:
+    local:
+      type: http
+      description: Local authentication
+      scheme: basic

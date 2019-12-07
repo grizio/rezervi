@@ -6,6 +6,7 @@ scalaVersion := "2.13.1"
 
 libraryDependencies += "com.typesafe.akka" %% "akka-http" % "10.1.10"
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.0"
+libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.10"
 libraryDependencies += "com.pauldijou" %% "jwt-spray-json" % "4.2.0"
 
 libraryDependencies += "org.mindrot" % "jbcrypt" % "0.4"

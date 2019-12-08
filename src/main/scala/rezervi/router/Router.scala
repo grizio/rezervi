@@ -5,9 +5,12 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusC
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import rezervi.domain.security.ManageToken
+import rezervi.domain.session.command.ManageSession
+import rezervi.domain.session.query.FindSessions
 import rezervi.domain.theater.command.ManageTheater
 import rezervi.domain.theater.query.FindTheaters
 import rezervi.model.security.NormalizedUUID
+import rezervi.model.session.{SessionCreation, SessionUpdate}
 import rezervi.model.theater.{TheaterCreation, TheaterUpdate}
 import rezervi.router.result.ToHttpResult
 import spray.json.RootJsonWriter
@@ -18,7 +21,9 @@ class Router(
   securityRouter: SecurityRouter,
   manageToken: ManageToken,
   findTheaters: FindTheaters,
-  manageTheater: ManageTheater
+  manageTheater: ManageTheater,
+  findSessions: FindSessions,
+  manageSession: ManageSession
 ) extends SprayJsonSupport {
 
   import rezervi.router.PathMatchers._
@@ -26,7 +31,7 @@ class Router(
   import rezervi.router.result.HttpResults._
 
   def buildRoutes(): Route = {
-    openApi() ~ security() ~ theater()
+    openApi() ~ security() ~ theater() ~ session()
   }
 
   private def openApi(): Route = {
@@ -65,6 +70,23 @@ class Router(
       },
       (delete & path("theaters" / TheaterIdSegment) & securityRouter.onAuthenticated) { (theaterId, user) =>
         asResult(manageTheater.removeTheater(theaterId, user))
+      }
+    )
+  }
+
+  private def session(): Route = {
+    concat(
+      (get & path("sessions") & securityRouter.onAuthenticated) { user =>
+        asJson(findSessions.listForAuthenticatedUser(user))
+      },
+      (post & path("sessions") & entity(as[SessionCreation]) & securityRouter.onAuthenticated) { (sessionCreation, user) =>
+        asResult(manageSession.createSession(sessionCreation, user))
+      },
+      (put & path("sessions" / SessionIdSegment) & entity(as[SessionUpdate]) & securityRouter.onAuthenticated) { (sessionId, sessionUpdate, user) =>
+        asResult(manageSession.updateSession(sessionId, sessionUpdate, user))
+      },
+      (delete & path("sessions" / SessionIdSegment) & securityRouter.onAuthenticated) { (sessionId, user) =>
+        asResult(manageSession.removeSession(sessionId, user))
       }
     )
   }

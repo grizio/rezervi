@@ -46,4 +46,6 @@ object Validation {
   def ok: Validation = ValidationOK
 
   def ko(field: String, value: String): Validation = ValidationKO(Map(field -> Seq(value)))
+
+  def errors(field: String, value: String): Validation.Errors = Map(field -> Seq(value))
 }

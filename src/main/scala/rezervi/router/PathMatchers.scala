@@ -5,6 +5,7 @@ import java.util.UUID
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.server.PathMatcher.{Matched, Unmatched}
 import akka.http.scaladsl.server.{PathMatcher, PathMatcher1}
+import rezervi.model.session.SessionId
 import rezervi.model.theater.TheaterId
 
 object PathMatchers {
@@ -22,5 +23,6 @@ object PathMatchers {
   }
 
   object TheaterIdSegment extends IdSegment(TheaterId)
+  object SessionIdSegment extends IdSegment(SessionId)
 
 }

@@ -1,5 +1,7 @@
 package rezervi.router.json
 
+import java.time.{DateTimeException, Instant}
+import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.util.UUID
 
 import spray.json.{JsArray, JsObject, JsString, JsValue, JsonFormat, JsonWriter, RootJsonWriter, deserializationError}
@@ -19,6 +21,22 @@ trait CommonJson {
 
     override def write(obj: UUID): JsValue = {
       JsString(obj.toString)
+    }
+  }
+
+  implicit val dateFormat: JsonFormat[Instant] = new JsonFormat[Instant] {
+    override def read(json: JsValue): Instant = json match {
+      case JsString(value) =>
+        try {
+          Instant.parse(value)
+        } catch {
+          case _: DateTimeParseException => deserializationError("Date expected")
+        }
+      case _ => deserializationError("Date expected")
+    }
+
+    override def write(obj: Instant): JsValue = {
+      JsString(DateTimeFormatter.ISO_INSTANT.format(obj))
     }
   }
 

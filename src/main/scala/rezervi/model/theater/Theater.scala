@@ -1,6 +1,7 @@
 package rezervi.model.theater
 
 import rezervi.model.security.UserId
+import rezervi.model.theater.plan.Plan
 
 case class Theater(
   id: TheaterId,

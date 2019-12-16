@@ -1,5 +1,6 @@
 package rezervi.router.result
 
 object HttpResults
-  extends SessionHttpResult
+  extends ReserveHttpResult
+    with SessionHttpResult
     with TheaterHttpResult

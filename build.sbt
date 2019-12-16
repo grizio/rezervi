@@ -18,6 +18,7 @@ libraryDependencies += "org.flywaydb" % "flyway-core" % "6.0.8"
 
 libraryDependencies += "com.typesafe" % "config" % "1.4.0"
 
+libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
 
 enablePlugins(JavaAppPackaging)
 

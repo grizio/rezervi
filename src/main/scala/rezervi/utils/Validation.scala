@@ -28,7 +28,8 @@ case object ValidationOK extends Validation {
 object Validation {
   type Errors = Map[String, Seq[String]]
 
-  def all(validations: Validation*): Validation = {
+  def all(validations: Validation*): Validation = all(validations)
+  def all(validations: Seq[Validation])(implicit dummyImplicit: DummyImplicit): Validation = {
     validations.fold(ValidationOK) { (acc, current) =>
       (acc, current) match {
         case (ValidationOK, ValidationOK) => ValidationOK
@@ -44,6 +45,9 @@ object Validation {
   }
 
   def ok: Validation = ValidationOK
+
+  /** Means the validation is ignored. This validation should be considered in another place. */
+  def ignored: Validation = ValidationOK
 
   def ko(field: String, value: String): Validation = ValidationKO(Map(field -> Seq(value)))
 

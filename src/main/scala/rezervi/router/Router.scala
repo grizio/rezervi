@@ -5,11 +5,12 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusC
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import rezervi.domain.security.ManageToken
-import rezervi.domain.session.command.ManageSession
+import rezervi.domain.session.command.{ManageSession, Reserve}
 import rezervi.domain.session.query.FindSessions
 import rezervi.domain.theater.command.ManageTheater
 import rezervi.domain.theater.query.FindTheaters
 import rezervi.model.security.NormalizedUUID
+import rezervi.model.session.reservation.NewReservation
 import rezervi.model.session.{SessionCreation, SessionUpdate}
 import rezervi.model.theater.{TheaterCreation, TheaterUpdate}
 import rezervi.router.result.ToHttpResult
@@ -23,7 +24,8 @@ class Router(
   findTheaters: FindTheaters,
   manageTheater: ManageTheater,
   findSessions: FindSessions,
-  manageSession: ManageSession
+  manageSession: ManageSession,
+  reserve: Reserve
 ) extends SprayJsonSupport {
 
   import rezervi.router.PathMatchers._
@@ -31,7 +33,7 @@ class Router(
   import rezervi.router.result.HttpResults._
 
   def buildRoutes(): Route = {
-    openApi() ~ security() ~ theater() ~ session()
+    openApi() ~ security() ~ theater() ~ session() ~ reservation()
   }
 
   private def openApi(): Route = {
@@ -87,6 +89,14 @@ class Router(
       },
       (delete & path("sessions" / SessionIdSegment) & securityRouter.onAuthenticated) { (sessionId, user) =>
         asResult(manageSession.removeSession(sessionId, user))
+      }
+    )
+  }
+
+  private def reservation(): Route = {
+    concat(
+      (post & path("sessions" / SessionIdSegment / "reservations") & entity(as[NewReservation])) { (sessionId, newReservation) =>
+        asResult(reserve.reserve(sessionId, newReservation))
       }
     )
   }

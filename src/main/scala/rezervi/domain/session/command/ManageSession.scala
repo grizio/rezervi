@@ -27,7 +27,9 @@ class ManageSession(
       session = Session(
         id = SessionId(UUID.randomUUID()),
         date = sessionCreation.date,
-        theater = theater
+        theater = theater,
+        prices = sessionCreation.prices,
+        reservations = Seq.empty
       )
       _ <- EitherT(SessionValidation.validate(session))
       _ <- EitherT.liftF(sessionRepository.insert(session))
@@ -41,7 +43,10 @@ class ManageSession(
     val result: Result = for {
       currentSession <- EitherT.fromOptionF(sessionRepository.find(sessionId), ManageSessionResult.NotFound)
       _ <- EitherT.cond[Future](currentSession.theater.uid == user.uid, (), ManageSessionResult.NotAuthorized)
-      newSession = currentSession.copy(date = sessionUpdate.date)
+      newSession = currentSession.copy(
+        date = sessionUpdate.date,
+        prices = sessionUpdate.prices
+      )
       _ <- EitherT(SessionValidation.validate(newSession))
       _ <- EitherT.liftF(sessionRepository.update(newSession))
     } yield {

@@ -3,11 +3,15 @@ package rezervi.persistence.postgres
 import rezervi.model.security.UserId
 import rezervi.model.theater.{Theater, TheaterId}
 import rezervi.persistence.postgres.schema.TheaterSchema
+import rezervi.router.json.Jsons
 import scalikejdbc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class TheaterRepository()(implicit ec: ExecutionContext) {
+  import Jsons._
+  import TypeBinders._
+
   def findByUser(uid: UserId): Future[Seq[Theater]] = Future {
     DB.readOnly { implicit session =>
       val t = TheaterSchema.syntax("t")
@@ -36,7 +40,7 @@ class TheaterRepository()(implicit ec: ExecutionContext) {
     DB.localTx { implicit session =>
       val t = TheaterSchema.column
       sql"""insert into ${TheaterSchema.table} (${t.id}, ${t.uid}, ${t.name}, ${t.address}, ${t.plan})
-            values (${theater.id.value}, ${theater.uid.value}, ${theater.name}, ${theater.address}, ${theater.plan.content.compactPrint}::jsonb)"""
+            values (${theater.id.value}, ${theater.uid.value}, ${theater.name}, ${theater.address}, ${jsonParam(theater.plan)}::jsonb)"""
         .update()
         .apply()
     }
@@ -49,7 +53,7 @@ class TheaterRepository()(implicit ec: ExecutionContext) {
             set ${t.uid} = ${theater.uid.value},
                 ${t.name} = ${theater.name},
                 ${t.address} = ${theater.address},
-                ${t.plan} = ${theater.plan.content.compactPrint}::jsonb
+                ${t.plan} = ${jsonParam(theater.plan)}::jsonb
             where ${t.id} = ${theater.id.value}"""
         .update()
         .apply()

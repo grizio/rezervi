@@ -1,11 +1,9 @@
 package rezervi.persistence.postgres.schema
 
-import java.sql.ResultSet
-
 import rezervi.model.security.UserId
-import rezervi.model.theater.{Plan, Theater, TheaterId}
+import rezervi.model.theater.plan.Plan
+import rezervi.model.theater.{Theater, TheaterId}
 import scalikejdbc._
-import spray.json._
 
 object TheaterSchema extends SQLSyntaxSupport[Theater] {
 
@@ -23,22 +21,5 @@ object TheaterSchema extends SQLSyntaxSupport[Theater] {
       address = rs.get[String](t.address),
       plan = rs.get[Plan](t.plan)
     )
-  }
-
-  implicit val planTypeBinder: TypeBinder[Plan] = new TypeBinder[Plan] {
-    override def apply(rs: ResultSet, columnIndex: Int): Plan = {
-      parse(rs.getString(columnIndex))
-    }
-
-    override def apply(rs: ResultSet, columnLabel: String): Plan = {
-      parse(rs.getString(columnLabel))
-    }
-
-    private def parse(value: String): Plan = {
-      value.parseJson match {
-        case jsObject: JsObject => Plan(jsObject)
-        case _ => throw new RuntimeException("Invalid JsObject when parsing theater.plan")
-      }
-    }
   }
 }

@@ -7,5 +7,6 @@ import rezervi.model.theater.TheaterView
 case class SessionView(
   id: SessionId,
   date: Instant,
-  theater: TheaterView
+  theater: TheaterView,
+  prices: Seq[Price]
 )

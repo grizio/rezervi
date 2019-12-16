@@ -2,7 +2,7 @@ package rezervi
 
 import akka.actor.ActorSystem
 import rezervi.domain.security.{Authenticate, ManageToken}
-import rezervi.domain.session.command.ManageSession
+import rezervi.domain.session.command.{ManageSession, Reserve}
 import rezervi.domain.session.query.FindSessions
 import rezervi.domain.theater.command.ManageTheater
 import rezervi.domain.theater.query.FindTheaters
@@ -17,7 +17,7 @@ class ApplicationLoader(config: RezerviConfig)(implicit system: ActorSystem) {
   lazy val serviceExecutionContext: ExecutionContext = system.dispatchers.lookup("service-context")
   lazy val cryptoExecutionContext: ExecutionContext = system.dispatchers.lookup("crypto-context")
 
-  lazy val router = new Router(securityRouter, manageToken, findTheaters, manageTheater, findSessions, manageSession)
+  lazy val router = new Router(securityRouter, manageToken, findTheaters, manageTheater, findSessions, manageSession, reserve)
   lazy val securityRouter = new SecurityRouter(authenticate)
 
   lazy val authenticate = new Authenticate(crypto, authenticationRepository)(serviceExecutionContext)
@@ -26,6 +26,7 @@ class ApplicationLoader(config: RezerviConfig)(implicit system: ActorSystem) {
   lazy val manageTheater = new ManageTheater(theaterRepository)(serviceExecutionContext)
   lazy val findSessions = new FindSessions(sessionRepository)(serviceExecutionContext)
   lazy val manageSession = new ManageSession(theaterRepository, sessionRepository)(serviceExecutionContext)
+  lazy val reserve = new Reserve(sessionRepository)(serviceExecutionContext)
 
   lazy val authenticationRepository = new AuthenticationRepository()(databaseExecutionContext)
   lazy val theaterRepository = new TheaterRepository()(databaseExecutionContext)

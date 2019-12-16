@@ -1,13 +1,18 @@
 package rezervi.persistence.postgres
 
 import rezervi.model.security.UserId
-import rezervi.model.session.{Session, SessionId}
+import rezervi.model.session.reservation.Reservation
+import rezervi.model.session.{Price, Session, SessionId}
 import rezervi.persistence.postgres.schema.{SessionSchema, TheaterSchema}
+import rezervi.router.json.Jsons
 import scalikejdbc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SessionRepository()(implicit ec: ExecutionContext) {
+  import Jsons._
+  import TypeBinders._
+
   def find(id: SessionId): Future[Option[Session]] = Future {
     DB.readOnly { implicit ss =>
       val s = SessionSchema.syntax("s")
@@ -39,8 +44,8 @@ class SessionRepository()(implicit ec: ExecutionContext) {
   def insert(session: Session): Future[Unit] = Future {
     DB.localTx { implicit ss =>
       val s = SessionSchema.column
-      sql"""insert into ${SessionSchema.table} (${s.id}, ${s.date}, ${s.theaterId})
-            values (${session.id.value}, ${session.date}, ${session.theater.id.value})"""
+      sql"""insert into ${SessionSchema.table} (${s.id}, ${s.date}, ${s.theaterId}, ${s.prices}, ${s.reservations})
+            values (${session.id.value}, ${session.date}, ${session.theater.id.value}, ${jsonParam(session.prices)}::jsonb, ${jsonParam(session.reservations)}::jsonb)"""
         .update()
         .apply()
     }
@@ -51,7 +56,9 @@ class SessionRepository()(implicit ec: ExecutionContext) {
       val s = SessionSchema.column
       sql"""update ${SessionSchema.table}
             set ${s.date} = ${session.date},
-                ${s.theaterId} = ${session.theater.id.value}
+                ${s.theaterId} = ${session.theater.id.value},
+                ${s.prices} = ${jsonParam(session.prices)}::jsonb,
+                ${s.reservations} = ${jsonParam(session.reservations)}::jsonb
             where ${s.id} = ${session.id.value}"""
         .update()
         .apply()

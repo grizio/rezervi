@@ -8,7 +8,8 @@ object SessionAdapter {
     SessionView(
       id = session.id,
       date = session.date,
-      theater = TheaterAdapter.toTheaterView(session.theater)
+      theater = TheaterAdapter.toTheaterView(session.theater),
+      prices = session.prices
     )
   }
 }
